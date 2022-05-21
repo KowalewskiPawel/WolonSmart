@@ -29,8 +29,6 @@ contract Wolon is ERC721 {
 
     event MembershipNFTMinted(address sender, uint256 tokenId);
 
-    uint256 private budget;
-
     constructor() payable ERC721("Wolon3.0", "WLN") {
         _tokenIds.increment();
     }
@@ -132,5 +130,9 @@ contract Wolon is ERC721 {
         uint256 idOfMemberNft = nftHolders[msg.sender];
         MemberAttributes storage member = nftHolderAttributes[idOfMemberNft];
         member.foundHelp = member.foundHelp.add(1);
+    }
+
+    function getBudgetBalance() public view returns (uint256) {
+        return address(this).balance;
     }
 }
