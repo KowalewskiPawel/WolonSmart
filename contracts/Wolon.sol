@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 import "./libraries/IterableMapping.sol";
+import "./libraries/IterableMappingAds.sol";
 import "./libraries/Base64.sol";
 
 contract Wolon is ERC721 {
@@ -17,15 +18,20 @@ contract Wolon is ERC721 {
 
     using SafeMath for uint256;
     using IterableMapping for IterableMapping.Map;
+    using IterableMappingAds for IterableMappingAds.Map;
     using Counters for Counters.Counter;
 
     Counters.Counter private _tokenIds;
 
     mapping(uint256 => MemberAttributes) public nftHolderAttributes;
     mapping(address => uint256) public nftHolders;
+    mapping(address => bool) private hasAd;
     IterableMapping.Map private helperTokensMap;
     IterableMapping.Map private foundHelpMap;
     IterableMapping.Map private totalSupportedMap;
+    IterableMappingAds.Map private helpAds;
+
+    string[] private adsArray;
 
     event MembershipNFTMinted(address sender, uint256 tokenId);
 
@@ -43,9 +49,7 @@ contract Wolon is ERC721 {
             _tokenId
         ];
 
-        string memory helperTokens = Strings.toString(
-            memberAttributes.helperTokens
-        );
+        string memory helperTokens = Strings.toString(memberAttributes.helperTokens);
         string memory foundHelp = Strings.toString(memberAttributes.foundHelp);
         string memory totalSupported = Strings.toString(
             memberAttributes.totalSupported
@@ -90,7 +94,9 @@ contract Wolon is ERC721 {
         }
     }
 
-    function mintMembershipNFT() external {
+     function mintMembershipNFT()
+        external
+    {
         require(
             nftHolders[msg.sender] == 0,
             "Only one nft per address allowed"
@@ -113,10 +119,7 @@ contract Wolon is ERC721 {
     }
 
     modifier isMember() {
-        require(
-            nftHolders[msg.sender] > 0,
-            "You are not a member of Wolon 3.0"
-        );
+        require(nftHolders[msg.sender] > 0, "You are not a member");
         _;
     }
 
@@ -134,5 +137,40 @@ contract Wolon is ERC721 {
 
     function getBudgetBalance() public view returns (uint256) {
         return address(this).balance;
+    }
+
+    function addHelpAd(string memory _helpAd) public isMember {
+        require(hasAd[msg.sender] == false, "You already have ad");
+        helpAds.set(msg.sender, _helpAd);
+        adsArray.push(helpAds.get(msg.sender));
+        hasAd[msg.sender] = true;
+
+        delete adsArray;
+
+        for (uint256 i = 0; i < helpAds.size(); i++) {
+            address key = helpAds.getKeyAtIndex(i);
+            adsArray.push(helpAds.get(key));
+        }
+    }
+
+    function getUserAd() public isMember view returns (string memory) {
+        return helpAds.get(msg.sender);
+    }
+
+    function removeUserAd() public isMember {
+        require(hasAd[msg.sender] == true, "You don't have have ad");
+        helpAds.remove(msg.sender);
+        hasAd[msg.sender] = false;
+
+        delete adsArray;
+
+        for (uint256 i = 0; i < helpAds.size(); i++) {
+            address key = helpAds.getKeyAtIndex(i);
+            adsArray.push(helpAds.get(key));
+        }
+    }
+
+    function getAds() public view returns (string[] memory) {
+        return adsArray;
     }
 }
