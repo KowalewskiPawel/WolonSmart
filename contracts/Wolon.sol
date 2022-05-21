@@ -99,8 +99,7 @@ contract Wolon is ERC721 {
         if (userNftTokenId > 0) {
             return nftHolderAttributes[userNftTokenId];
         } else {
-            MemberAttributes memory emptyStruct;
-            return emptyStruct;
+            revert("No membership found");
         }
     }
 
