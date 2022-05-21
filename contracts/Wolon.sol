@@ -45,13 +45,15 @@ contract Wolon is ERC721 {
             _tokenId
         ];
 
-        string memory helperTokens = Strings.toString(memberAttributes.helperTokens);
+        string memory helperTokens = Strings.toString(
+            memberAttributes.helperTokens
+        );
         string memory foundHelp = Strings.toString(memberAttributes.foundHelp);
         string memory totalSupported = Strings.toString(
             memberAttributes.totalSupported
         );
         string
-            memory logo = "ipfs://QmZyxa5JSatxUNdY9xDfz5ddJVg7bFXaKxxRU814X3PMa2";
+            memory logo = "ipfs://QmczzwSXHQM8scabG6Renv2ZMUzb6Bujyx76Fv23bQSoj4";
 
         string memory json = Base64.encode(
             bytes(
@@ -90,9 +92,7 @@ contract Wolon is ERC721 {
         }
     }
 
-     function mintMembershipNFT()
-        external
-    {
+    function mintMembershipNFT() external {
         require(
             nftHolders[msg.sender] == 0,
             "Only one nft per address allowed"
@@ -115,7 +115,10 @@ contract Wolon is ERC721 {
     }
 
     modifier isMember() {
-        require(nftHolders[msg.sender] > 0, "You are not a member of Wolon 3.0");
+        require(
+            nftHolders[msg.sender] > 0,
+            "You are not a member of Wolon 3.0"
+        );
         _;
     }
 
