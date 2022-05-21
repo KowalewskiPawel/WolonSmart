@@ -123,8 +123,8 @@ contract Wolon is ERC721 {
         _;
     }
 
-    function helperTokensInc() internal isMember {
-        uint256 idOfMemberNft = nftHolders[msg.sender];
+    function helperTokensInc(address _helper) internal isMember {
+        uint256 idOfMemberNft = nftHolders[_helper];
         MemberAttributes storage member = nftHolderAttributes[idOfMemberNft];
         member.helperTokens = member.helperTokens.add(1);
     }
@@ -170,7 +170,25 @@ contract Wolon is ERC721 {
         }
     }
 
+    function helpFound(address _helper) public isMember {
+        require(hasAd[msg.sender] == true, "You don't have have ad");
+        require(nftHolders[_helper] > 0, "The user is not a member");
+        helpAds.remove(msg.sender);
+        hasAd[msg.sender] = false;
+
+        delete adsArray;
+
+        for (uint256 i = 0; i < helpAds.size(); i++) {
+            address key = helpAds.getKeyAtIndex(i);
+            adsArray.push(helpAds.get(key));
+        }
+
+        increaseFoundHelp();
+        helperTokensInc(_helper);
+    }
+
     function getAds() public view returns (string[] memory) {
         return adsArray;
     }
 }
+
