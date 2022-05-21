@@ -16,6 +16,14 @@ contract Wolon is ERC721 {
         uint256 totalSupported;
     }
 
+    struct GiveawayVoting {
+        uint256 zero;
+        uint256 twentyfive;
+        uint256 fifty;
+        uint256 seventyfive;
+        uint256 hundred;
+    }
+
     using SafeMath for uint256;
     using IterableMapping for IterableMapping.Map;
     using IterableMappingAds for IterableMappingAds.Map;
@@ -26,10 +34,12 @@ contract Wolon is ERC721 {
     mapping(uint256 => MemberAttributes) public nftHolderAttributes;
     mapping(address => uint256) public nftHolders;
     mapping(address => bool) private hasAd;
+    mapping(address => bool) private hasVoted;
     IterableMapping.Map private helperTokensMap;
     IterableMapping.Map private foundHelpMap;
     IterableMapping.Map private totalSupportedMap;
     IterableMappingAds.Map private helpAds;
+    GiveawayVoting public paymentVoting;
 
     string[] private adsArray;
 
@@ -190,5 +200,26 @@ contract Wolon is ERC721 {
     function getAds() public view returns (string[] memory) {
         return adsArray;
     }
-}
 
+    function voteForPayment(uint _vote) public isMember {
+        require(hasVoted[msg.sender] == false, "You have already voted");
+        if (_vote == 0) {
+            paymentVoting.zero = paymentVoting.zero.add(1);
+        }
+        else if (_vote == 1) {
+            paymentVoting.twentyfive = paymentVoting.twentyfive.add(1);
+        }
+        else if (_vote == 2) {
+            paymentVoting.fifty = paymentVoting.fifty.add(1);
+        }
+        else if (_vote == 3) {
+            paymentVoting.seventyfive = paymentVoting.seventyfive.add(1);
+        }
+        else if (_vote == 4) {
+            paymentVoting.hundred = paymentVoting.hundred.add(1);
+        } else {
+            revert("Incorrect voting number");
+        }
+        hasVoted[msg.sender] = true;
+    }
+}
